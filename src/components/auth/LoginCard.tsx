@@ -13,6 +13,7 @@ import { AuthLoginSchema, AuthLoginSchemaType } from "@/lib/schemas/AuthSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import UseForm from "../common/UseForm";
 import LoadingButton from "../common/LoadingButton";
+import { useRouter } from "next/navigation";
 
 interface ILoginCardProp {
   widthClass: string;
@@ -23,6 +24,7 @@ export default function LoginCard({
   widthClass,
   heightClass
 }: Readonly<ILoginCardProp>) {
+  const router = useRouter();
   const loginForm = useForm<AuthLoginSchemaType>({
     resolver: zodResolver(AuthLoginSchema)
   });
@@ -65,7 +67,13 @@ export default function LoginCard({
         />
       </CardContent>
       <CardFooter className="flex justify-between">
-        <LoadingButton variant="outline" loading={false} onClick={() => {}}>
+        <LoadingButton
+          variant="outline"
+          loading={false}
+          onClick={() => {
+            router.push("/signup");
+          }}
+        >
           Sign Up
         </LoadingButton>
         <LoadingButton

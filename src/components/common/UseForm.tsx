@@ -43,6 +43,7 @@ export default function UseForm({
             case "input":
               return (
                 <FormField
+                  key={name}
                   control={control}
                   name={name}
                   render={({ field, fieldState, formState }) => (
@@ -61,13 +62,13 @@ export default function UseForm({
                 />
               );
             case "select":
-              return <>Select - TODO</>;
+              return <div key={name}>Select - TODO</div>;
             case "checkbox":
-              return <>Checkbox - TODO</>;
+              return <div key={name}>Checkbox - TODO</div>;
             case "radio":
-              return <>Radio - TODO</>;
+              return <div key={name}>Radio - TODO</div>;
             default:
-              return <>Input - TODO</>;
+              return <div key={name}>Input - TODO</div>;
           }
         })}
         <LoadingButton
