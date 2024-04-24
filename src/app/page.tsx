@@ -1,7 +1,9 @@
+import LoginCard from "@/components/auth/LoginCard";
+
 export default function Home() {
   return (
-    <main className="max-w-5xl m-auto">
-      <h1>Hello World!</h1>
+    <main className="flex min-h-screen items-center justify-center">
+      <LoginCard widthClass="min-w-[466px]" heightClass="" />
     </main>
   );
 }
