@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prettier:all": "prettier -w ./src/**/*.ts ./src/**/*.tsx"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

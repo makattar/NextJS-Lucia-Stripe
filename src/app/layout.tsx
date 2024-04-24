@@ -5,11 +5,11 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Next Js + Stripe",
-  description: "Next Js + Stripe POC",
+  description: "Next Js + Stripe POC"
 };
 
 export default function RootLayout({
-  children,
+  children
 }: {
   children: React.ReactNode;
 }) {
