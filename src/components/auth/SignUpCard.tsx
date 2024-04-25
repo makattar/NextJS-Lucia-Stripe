@@ -117,7 +117,7 @@ export default function SignUpCard({
             variant="outline"
             loading={false}
             onClick={() => {
-              router.push("/");
+              router.push("/login");
             }}
           >
             Log In
