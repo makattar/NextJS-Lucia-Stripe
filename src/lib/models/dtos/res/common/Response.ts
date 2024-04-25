@@ -3,6 +3,7 @@ export interface ResponseResDto<T> {
   error: {
     errors: string[];
   };
+  message: string;
   statusCode: number;
   data: T | null;
 }

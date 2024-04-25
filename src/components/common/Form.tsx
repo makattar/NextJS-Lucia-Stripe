@@ -10,9 +10,9 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import LoadingButton from "./LoadingButton";
+import ButtonComponent from "./Button";
 
-interface IUseFormProps {
+interface IFormComponentProps {
   form: UseFormReturn<any, any, undefined>;
   inputs: {
     type: "input" | "select" | "radio" | "checkbox";
@@ -24,11 +24,11 @@ interface IUseFormProps {
   onSubmit: any;
 }
 
-export default function UseForm({
+export default function FormComponent({
   form,
   onSubmit = () => {},
   inputs = []
-}: Readonly<IUseFormProps>) {
+}: Readonly<IFormComponentProps>) {
   const {
     handleSubmit,
     control,
@@ -71,14 +71,14 @@ export default function UseForm({
               return <div key={name}>Input - TODO</div>;
           }
         })}
-        <LoadingButton
+        <ButtonComponent
           variant="default"
           className="hidden"
           type="submit"
           loading={isSubmitting}
         >
           Submit
-        </LoadingButton>
+        </ButtonComponent>
       </form>
     </Form>
   );

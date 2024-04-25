@@ -11,9 +11,13 @@ import {
 import { useForm } from "react-hook-form";
 import { AuthLoginSchema, AuthLoginSchemaType } from "@/lib/schemas/AuthSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import UseForm from "../common/UseForm";
-import LoadingButton from "../common/LoadingButton";
+import FormComponent from "../common/Form";
+import ButtonComponent from "../common/Button";
 import { useRouter } from "next/navigation";
+import { HttpService } from "@/lib/common/HttpService";
+import useAlert from "@/hooks/useAlert";
+import AlertComponent from "../common/Alert";
+import { SUCCESFUL_REQUEST_CODE } from "@/lib/constants/ApiStatusCode";
 
 interface ILoginCardProp {
   widthClass: string;
@@ -25,12 +29,30 @@ export default function LoginCard({
   heightClass
 }: Readonly<ILoginCardProp>) {
   const router = useRouter();
+  const { post } = HttpService();
+  const { alert, showAlert, hideAlert } = useAlert();
+
   const loginForm = useForm<AuthLoginSchemaType>({
     resolver: zodResolver(AuthLoginSchema)
   });
 
   const onSubmit = async (values: { [x: string]: any }) => {
-    console.log("Submited Values : ", values);
+    hideAlert();
+    const { status, data } = await post("/api/auth/login", values);
+    if (!SUCCESFUL_REQUEST_CODE.includes(status)) {
+      showAlert({
+        title: `Error : ${data?.errors?.[0]}`,
+        variant: "destructive",
+        visible: true
+      });
+      return;
+    }
+
+    showAlert({
+      title: `Success : ${data?.message}`,
+      variant: "default",
+      visible: true
+    });
   };
 
   const {
@@ -39,51 +61,60 @@ export default function LoginCard({
   } = loginForm;
 
   return (
-    <Card className={`${widthClass} ${heightClass}`}>
-      <CardHeader>
-        <CardTitle>Log In</CardTitle>
-        <CardDescription>Welcome back!</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <UseForm
-          form={loginForm}
-          inputs={[
-            {
-              name: "email",
-              type: "input",
-              subType: "email",
-              title: "Email",
-              placeholder: "Email"
-            },
-            {
-              name: "password",
-              type: "input",
-              subType: "password",
-              title: "Password",
-              placeholder: "Password"
-            }
-          ]}
-          onSubmit={onSubmit}
-        />
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        <LoadingButton
-          variant="outline"
-          loading={false}
-          onClick={() => {
-            router.push("/signup");
-          }}
-        >
-          Sign Up
-        </LoadingButton>
-        <LoadingButton
-          variant="default"
-          loading={isSubmitting}
-          onClick={handleSubmit(onSubmit)}
-        >
-          Log In
-        </LoadingButton>
-      </CardFooter>
-    </Card>
+    <div className="flex flex-col gap-3">
+      <AlertComponent
+        visible={alert.visible}
+        variant={alert.variant}
+        title={alert.title}
+        description={alert.description}
+      />
+
+      <Card className={`${widthClass} ${heightClass}`}>
+        <CardHeader>
+          <CardTitle>Log In</CardTitle>
+          <CardDescription>Welcome back!</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FormComponent
+            form={loginForm}
+            inputs={[
+              {
+                name: "email",
+                type: "input",
+                subType: "email",
+                title: "Email",
+                placeholder: "Email"
+              },
+              {
+                name: "password",
+                type: "input",
+                subType: "password",
+                title: "Password",
+                placeholder: "Password"
+              }
+            ]}
+            onSubmit={onSubmit}
+          />
+        </CardContent>
+        <CardFooter className="flex justify-between">
+          <ButtonComponent
+            variant="outline"
+            loading={false}
+            onClick={() => {
+              router.push("/signup");
+            }}
+          >
+            Sign Up
+          </ButtonComponent>
+          <ButtonComponent
+            variant="default"
+            loading={isSubmitting}
+            onClick={handleSubmit(onSubmit)}
+          >
+            Log In
+          </ButtonComponent>
+        </CardFooter>
+      </Card>
+    </div>
   );
 }

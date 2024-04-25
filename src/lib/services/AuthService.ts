@@ -17,6 +17,19 @@ export class AuthService {
   }
 
   async signup(request: SignUpReqDto): Promise<ResponseResDto<SignUpResDto>> {
+    const existingUser = await this.userRepository.getOneByEmail(request.email);
+    if (existingUser) {
+      return {
+        success: false,
+        data: null,
+        error: {
+          errors: [`User with email ${request.email} already exist!`]
+        },
+        message: "",
+        statusCode: BAD_REQUEST_CODE
+      };
+    }
+
     const hashedPassword = await new Argon2id().hash(request.password);
     const userId = generateIdFromEntropySize(10);
     const createdUser = await this.userRepository.create({
@@ -34,6 +47,7 @@ export class AuthService {
         sessionId: session.id,
         sessionCookie: sessionCookie
       },
+      message: "User Sign Up Completed Successfully!",
       error: {
         errors: []
       },
@@ -51,6 +65,7 @@ export class AuthService {
         error: {
           errors: ["Incorrect Email or Password!"]
         },
+        message: "",
         statusCode: BAD_REQUEST_CODE
       };
     }
@@ -66,6 +81,7 @@ export class AuthService {
         error: {
           errors: ["Incorrect Email or Password!"]
         },
+        message: "",
         statusCode: BAD_REQUEST_CODE
       };
     }
@@ -82,6 +98,7 @@ export class AuthService {
       error: {
         errors: []
       },
+      message: "User Log In Completed Successfully!",
       statusCode: OK_CODE
     };
   }
@@ -95,6 +112,7 @@ export class AuthService {
         error: {
           errors: ["Session Not Found!"]
         },
+        message: "",
         statusCode: BAD_REQUEST_CODE
       };
     }
@@ -111,6 +129,7 @@ export class AuthService {
       error: {
         errors: []
       },
+      message: "User Log out Completed Successfully!",
       statusCode: OK_CODE
     };
   }
