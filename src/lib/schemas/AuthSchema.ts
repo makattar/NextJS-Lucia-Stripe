@@ -43,3 +43,8 @@ export const AuthSignUpSchema = z
     path: ["confirmPassword"]
   });
 export type AuthSignUpSchemaType = z.infer<typeof AuthSignUpSchema>;
+
+export const AuthLogOutSchema = z.object({
+  token: z.string().trim().min(1, "Token is required!")
+});
+export type AuthLogOutSchemaType = z.infer<typeof AuthLogOutSchema>;
