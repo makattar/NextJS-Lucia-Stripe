@@ -1,5 +1,5 @@
-export interface SignUpReqDto{
-    name : string;
-    email : string;
-    password : string;
+export interface SignUpReqDto {
+  name: string;
+  email: string;
+  password: string;
 }

@@ -18,6 +18,7 @@ import { HttpService } from "@/lib/common/HttpService";
 import useAlert from "@/hooks/useAlert";
 import AlertComponent from "../common/Alert";
 import { SUCCESFUL_REQUEST_CODE } from "@/lib/constants/ApiStatusCode";
+import { PagePath } from "@/lib/constants/Path";
 
 interface ILoginCardProp {
   widthClass: string;
@@ -53,6 +54,7 @@ export default function LoginCard({
       variant: "default",
       visible: true
     });
+    router.push(PagePath.DASHBOARD);
   };
 
   const {
@@ -101,7 +103,7 @@ export default function LoginCard({
             variant="outline"
             loading={false}
             onClick={() => {
-              router.push("/signup");
+              router.push(PagePath.SIGNUP);
             }}
           >
             Sign Up

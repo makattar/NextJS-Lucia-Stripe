@@ -23,10 +23,13 @@ export async function POST(req: Request, res: Response) {
     );
   }
 
-  return Response.json(authenticatedData.data, {
-    status: authenticatedData.statusCode,
-    headers: {
-      "Set-Cookie": authenticatedData?.data?.sessionCookie.serialize() ?? ""
+  return Response.json(
+    { ...authenticatedData.data, message: authenticatedData.message },
+    {
+      status: authenticatedData.statusCode,
+      headers: {
+        "Set-Cookie": authenticatedData?.data?.sessionCookie.serialize() ?? ""
+      }
     }
-  });
+  );
 }

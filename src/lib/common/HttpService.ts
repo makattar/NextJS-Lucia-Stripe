@@ -1,3 +1,11 @@
+import { luciaAuthSession } from "../constants/LuciaConfig";
+
+function getCookie(name: string) {
+  const value = `; ${document.cookie}`;
+  const parts = value?.split(`; ${name}=`) ?? [];
+  if (parts.length === 2) return parts.pop()?.split(";").shift();
+}
+
 export const HttpService = () => {
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "";
 
@@ -6,9 +14,11 @@ export const HttpService = () => {
     body: { [x: string]: any } = {},
     headers: { [x: string]: any } = {}
   ): Promise<{ data: any; status: number }> => {
-    const loginToken = localStorage.getItem("token");
+    const authSession = getCookie(luciaAuthSession);
     !headers["Content-Type"] && (headers["Content-Type"] = "application/json");
-    !headers["Authorization"] && (headers["Authorization"] = loginToken);
+    !headers["Authorization"] &&
+      authSession &&
+      (headers["Authorization"] = `Bearer ${authSession}`);
 
     const response = await fetch(BASE_URL + api, {
       method: "POST",

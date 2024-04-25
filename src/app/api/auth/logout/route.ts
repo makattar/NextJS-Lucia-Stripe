@@ -1,21 +1,16 @@
-import { validateZodSchema } from "@/lib/common/Validate";
-import { BAD_REQUEST_CODE } from "@/lib/constants/ApiStatusCode";
-import { AuthLogOutSchema } from "@/lib/schemas/AuthSchema";
+import { luciaValidateRequest } from "@/lib/common/LuciaValidate";
+import { UNAUTHORIZED_CODE } from "@/lib/constants/ApiStatusCode";
 import { AuthService } from "@/lib/services/AuthService";
 
 export async function POST(req: Request, res: Response) {
-  const reqBody = await req.json();
-  const authService = new AuthService();
-
-  const validation = validateZodSchema(reqBody, AuthLogOutSchema);
-  if (!validation.success) {
-    return Response.json(
-      { ...validation.errors },
-      { status: BAD_REQUEST_CODE }
-    );
+  const authorizationHeader = req.headers.get("Authorization");
+  const { session } = await luciaValidateRequest(authorizationHeader);
+  if (!session) {
+    return Response.json({}, { status: UNAUTHORIZED_CODE });
   }
 
-  const logoutData = await authService.logout(validation.result);
+  const authService = new AuthService();
+  const logoutData = await authService.logout(session.id);
   if (!logoutData.success) {
     return Response.json(
       { ...logoutData.error },
@@ -23,10 +18,13 @@ export async function POST(req: Request, res: Response) {
     );
   }
 
-  return Response.json(logoutData.data, {
-    status: logoutData.statusCode,
-    headers: {
-      "Set-Cookie": logoutData?.data?.sessionCookie.serialize() ?? ""
+  return Response.json(
+    { ...logoutData.data, message: logoutData.message },
+    {
+      status: logoutData.statusCode,
+      headers: {
+        "Set-Cookie": logoutData?.data?.sessionCookie.serialize() ?? ""
+      }
     }
-  });
+  );
 }
