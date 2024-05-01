@@ -17,4 +17,13 @@ export class UserRepository {
     });
     return user;
   }
+
+  async getOneByGithubId(githubId: number): Promise<User | null> {
+    const user = await prisma.user.findUnique({
+      where: {
+        github_id: githubId
+      }
+    });
+    return user;
+  }
 }
