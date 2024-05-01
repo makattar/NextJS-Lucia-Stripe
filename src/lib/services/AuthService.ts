@@ -9,6 +9,7 @@ import { UserRepository } from "../repository/UserRepository";
 import { LogInReqDto } from "../models/dtos/req/auth/LogIn";
 import { LogInResDto } from "../models/dtos/res/auth/LogIn";
 import { LogOutResDto } from "../models/dtos/res/auth/LogOut";
+import { GithubResDto } from "../models/dtos/res/auth/Github";
 
 export class AuthService {
   private userRepository: UserRepository;
@@ -139,7 +140,7 @@ export class AuthService {
   async github(
     code: string,
     state: string
-  ): Promise<ResponseResDto<SignUpResDto>> {
+  ): Promise<ResponseResDto<GithubResDto>> {
     const tokens = await githubAuth.validateAuthorizationCode(code);
     const githubUserResponse = await fetch("https://api.github.com/user", {
       headers: {

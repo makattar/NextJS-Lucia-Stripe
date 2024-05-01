@@ -134,7 +134,7 @@ export default function LoginCard({
             onClick={onGithubLogin}
             className="w-full"
           >
-            Github Login
+            Login with Github
           </ButtonComponent>
         </CardFooter>
       </Card>
