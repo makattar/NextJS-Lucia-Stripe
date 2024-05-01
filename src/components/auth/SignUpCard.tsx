@@ -33,7 +33,7 @@ export default function SignUpCard({
   heightClass
 }: Readonly<ISignUpCardProp>) {
   const router = useRouter();
-  const { post } = HttpService();
+  const { get, post } = HttpService();
   const { alert, showAlert, hideAlert } = useAlert();
 
   const signUpForm = useForm<AuthSignUpSchemaType>({
@@ -64,6 +64,17 @@ export default function SignUpCard({
     handleSubmit,
     formState: { isSubmitting }
   } = signUpForm;
+
+  const onGithubLogin = async () => {
+    const { status, data } = await get("/api/auth/login/github");
+    if (SUCCESFUL_REQUEST_CODE.includes(status)) {
+      try {
+        router.replace(data.url);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
 
   return (
     <div className="flex flex-col gap-3">
@@ -114,22 +125,32 @@ export default function SignUpCard({
             onSubmit={onSubmit}
           />
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <ButtonComponent
-            variant="outline"
-            loading={false}
-            onClick={() => {
-              router.push(PagePath.LOGIN);
-            }}
-          >
-            Log In
-          </ButtonComponent>
+        <CardFooter className="flex flex-col gap-3">
+          <div className="flex w-full justify-between">
+            <ButtonComponent
+              variant="outline"
+              loading={false}
+              onClick={() => {
+                router.push(PagePath.LOGIN);
+              }}
+            >
+              Log In
+            </ButtonComponent>
+            <ButtonComponent
+              variant="default"
+              loading={isSubmitting}
+              onClick={handleSubmit(onSubmit)}
+            >
+              Sign Up
+            </ButtonComponent>
+          </div>
           <ButtonComponent
             variant="default"
-            loading={isSubmitting}
-            onClick={handleSubmit(onSubmit)}
+            loading={false}
+            onClick={onGithubLogin}
+            className="w-full"
           >
-            Sign Up
+            Sign Up with Github
           </ButtonComponent>
         </CardFooter>
       </Card>

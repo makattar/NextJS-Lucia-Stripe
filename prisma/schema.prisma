@@ -11,10 +11,12 @@ datasource db {
 }
 
 model User {
-  id       String    @id
-  email    String    @unique
-  password String
-  sessions Session[]
+  id        String    @id
+  email     String?   @unique
+  password  String?
+  github_id BigInt?   @unique
+  username  String?   @unique
+  sessions  Session[]
 }
 
 model Session {

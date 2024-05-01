@@ -2,13 +2,14 @@ import { SignUpReqDto } from "../models/dtos/req/auth/SignUp";
 import { SignUpResDto } from "../models/dtos/res/auth/SignUp";
 import { ResponseResDto } from "../models/dtos/res/common/Response";
 import { BAD_REQUEST_CODE, OK_CODE } from "../constants/ApiStatusCode";
-import { lucia } from "@/lib/common/LuciaAuth";
+import { githubAuth, lucia } from "@/lib/common/LuciaAuth";
 import { Argon2id } from "oslo/password";
 import { generateIdFromEntropySize } from "lucia";
 import { UserRepository } from "../repository/UserRepository";
 import { LogInReqDto } from "../models/dtos/req/auth/LogIn";
 import { LogInResDto } from "../models/dtos/res/auth/LogIn";
 import { LogOutResDto } from "../models/dtos/res/auth/LogOut";
+import { GithubResDto } from "../models/dtos/res/auth/Github";
 
 export class AuthService {
   private userRepository: UserRepository;
@@ -35,7 +36,9 @@ export class AuthService {
     const createdUser = await this.userRepository.create({
       id: userId,
       email: request.email,
-      password: hashedPassword
+      password: hashedPassword,
+      github_id: null,
+      username: null
     });
 
     const session = await lucia.createSession(createdUser.id, {});
@@ -71,7 +74,7 @@ export class AuthService {
     }
 
     const validPassword = await new Argon2id().verify(
-      existingUser.password,
+      String(existingUser.password),
       request.password
     );
     if (!validPassword) {
@@ -133,4 +136,66 @@ export class AuthService {
       statusCode: OK_CODE
     };
   }
+
+  async github(
+    code: string,
+    state: string
+  ): Promise<ResponseResDto<GithubResDto>> {
+    const tokens = await githubAuth.validateAuthorizationCode(code);
+    const githubUserResponse = await fetch("https://api.github.com/user", {
+      headers: {
+        Authorization: `Bearer ${tokens.accessToken}`
+      }
+    });
+    const githubUser: GitHubUser = await githubUserResponse.json();
+
+    const existingUser = await this.userRepository.getOneByGithubId(
+      githubUser.id
+    );
+    if (existingUser) {
+      const session = await lucia.createSession(existingUser.id, {});
+      const sessionCookie = lucia.createSessionCookie(session.id);
+
+      return {
+        success: true,
+        data: {
+          sessionId: session.id,
+          sessionCookie: sessionCookie
+        },
+        message: "User Log In Completed Successfully!",
+        error: {
+          errors: []
+        },
+        statusCode: OK_CODE
+      };
+    }
+
+    const userId = generateIdFromEntropySize(10);
+    const createdUser = await this.userRepository.create({
+      id: userId,
+      email: null,
+      password: null,
+      github_id: BigInt(githubUser.id),
+      username: githubUser.login
+    });
+    const session = await lucia.createSession(createdUser.id, {});
+    const sessionCookie = lucia.createSessionCookie(session.id);
+    return {
+      success: true,
+      data: {
+        sessionId: session.id,
+        sessionCookie: sessionCookie
+      },
+      message: "User Sign Up Completed Successfully!",
+      error: {
+        errors: []
+      },
+      statusCode: OK_CODE
+    };
+  }
+}
+
+interface GitHubUser {
+  id: number;
+  login: string;
 }
