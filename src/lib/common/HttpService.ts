@@ -36,7 +36,33 @@ export const HttpService = () => {
     }
   };
 
+  const get = async (
+    api: string,
+    headers: { [x: string]: any } = {}
+  ): Promise<{ data: any; status: number }> => {
+    const authSession = getCookie(luciaAuthSession);
+    !headers["Content-Type"] && (headers["Content-Type"] = "application/json");
+    !headers["Authorization"] &&
+      authSession &&
+      (headers["Authorization"] = `Bearer ${authSession}`);
+
+    const response = await fetch(BASE_URL + api, {
+      method: "GET",
+      headers: headers
+    });
+    if (response.ok) {
+      const resp = await response.json();
+      return { data: resp, status: response.status };
+    } else {
+      return {
+        data: typeof response?.json === "function" ? await response.json() : {},
+        status: response.status
+      };
+    }
+  };
+
   return {
+    get,
     post
   };
 };
